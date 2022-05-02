@@ -47,7 +47,7 @@ body {
     border: 1px solid #ccc;
     background-color: #f1f1f1;
   }
-
+  
   .tab button {
     background-color: inherit;
     float: left;
@@ -57,7 +57,7 @@ body {
     padding: 14px 16px;
     transition: 0.3s;
   }
-
+  
 
   .tab button:hover {
     background-color: #ddd;
@@ -97,23 +97,23 @@ require([
       id: "63f4d793133049c9a35372d0ddf99ca8"
     }
   });
-
+  
   const view = new SceneView({
     container: "viewDiv",
     map: webmap,
     popup: {
       autoOpenEnabled: true
-    }
+    } 
   });
 
   view.when(() => {
-
-
+    
+    
     const featureLayer = new FeatureLayer(
       {url:
         "https://services.arcgis.com/kbDdtKcFi2adamXa/arcgis/rest/services/Mangrove_carbon_stories___Sheet1/FeatureServer/0",
         outFields: ["*"]
-      });
+      }); 
     // Get data from the layer
     let Mangrove_feature;
     var Mangrove_investment = {};
@@ -137,10 +137,10 @@ require([
         //console.log(Mangrove_feature);
         console.log(featureSet.features.length);
     });
-
+    
     // Create the feature table
     const featureTable = new FeatureTable({
-      view: view,
+      view: view, 
       layer: featureLayer,
 
       container: document.getElementById("tableDiv")
@@ -178,7 +178,7 @@ require([
         }
       });
 
-
+    
 
     // Add buttons to the mapView
     view.ui.add(document.getElementById("s_table"), "bottom-right");
@@ -235,7 +235,7 @@ require([
       });
     });
 
-
+    
     // Listen for the click on the view and select any associated row in the table
     let Mangrove_selected;
     let id_selected = -1;
@@ -248,13 +248,13 @@ require([
           featureTable.selectRows(response.results[0].graphic);
           this.last_select = response.results[0].graphic;
           id_obj = response.results[0].graphic.attributes.ObjectId;
-          //console.log(id_obj);
+          //console.log(id_obj); 
           Mangrove_selected = Mangrove_feature.find(element => element.attributes.ObjectId == id_obj);
 
 
           id_selected = Mangrove_selected.attributes.Total_Carbon_Rank-1;
           //console.log("find");
-
+          
           //console.log(Mangrove_selected.attributes);
           //console.log(Mangrove_feature[id_selected].attributes);
         }
@@ -278,7 +278,7 @@ require([
         carbon_new = carbon_new+slider.values/2508*increase_rate;
        Mangrove_feature[rank_new].attributes.Total_Carbon_Stock = carbon_new;
         //console.log(carbon_new);
-        while(rank_new>0 && carbon_new>Mangrove_feature[rank_new-1].attributes.Total_Carbon_Stock) {
+        while(rank_new>0 && carbon_new>Mangrove_feature[rank_new-1].attributes.Total_Carbon_Stock) { 
           Mangrove_feature[rank_new-1].attributes.Total_Carbon_Rank++;
           rank_new--;
         }
@@ -287,7 +287,7 @@ require([
       Mangrove_feature = Mangrove_feature.sort(function(a, b) {
             return a.attributes["Total_Carbon_Rank"] - b.attributes["Total_Carbon_Rank"]; //ascending order
         });
-
+      
         //console.log(rank_new);
         string = //"After investing "+slider.values+" dollars, \n"+
           name+ " has received a total of "+ Mangrove_investment[id_obj] + " dollars.\n"+"It can consume a carbon stock of "+carbon_new.toFixed(0)+" tonnes. \nIts rank in the world will become "+ (rank_new+1);
@@ -295,7 +295,7 @@ require([
         document.getElementById("invest_result").innerHTML = string;
         return;
     }
-
+    
     function pinning(){
       var string = document.getElementById("invest_result").innerHTML;
       if (id_selected<0) {
@@ -305,7 +305,7 @@ require([
       document.getElementById("invest_result").innerHTML = "";
       return;
     }
-
+    
     function cleaning() {
       if (id_selected<0) {
         return;
@@ -335,7 +335,7 @@ require([
         return;
       });
         //console.log(Mangrove_feature);
-
+        
     }
 
     const fullExtentBtn = document.getElementById("fullextent");
@@ -361,7 +361,7 @@ require([
           console.error(error);
         }
       });
-
+      
     }
   });
 });
@@ -399,7 +399,7 @@ function hide_show_table() {
     for (i = 0; i < tablinks.length; i++) {
       tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
-
+  
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
   }
@@ -420,7 +420,7 @@ function hide_show_table() {
         }
         var chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
-
+            
             title:{
                 text:this.showing_chart,
               fontSize: 30
@@ -447,10 +447,10 @@ function hide_show_table() {
         //console.log(chart_entries);
         chart.render();
     }
-
+    
 }
 
-
+  
 
 
 </script>
@@ -463,12 +463,12 @@ function hide_show_table() {
 <div class="container" id="content_holder">
 <!-- Tab links -->
 <div class="tab">
-    <button class="tablinks" onclick="openTab(event, 'tableDiv')" id="defaultOpen">Table</button>
+    <button class="tablinks" onclick="openTab(event, 'referenceDiv')" id="defaultOpen">Info</button>
+    <button class="tablinks" onclick="openTab(event, 'tableDiv')">Table</button>
     <button class="tablinks" onclick="openTab(event, 'chartDiv')">Chart</button>
     <button class="tablinks" onclick="openTab(event, 'functionDiv')">Function</button>
-    <button class="tablinks" onclick="openTab(event, 'referenceDiv')">References</button>
   </div>
-<!-- Tab links -->
+<!-- Tab links --> 
 <div id="tableDiv" class="tabcontent"></div>
 
 <div id="chartDiv" class="tabcontent">
@@ -489,11 +489,26 @@ function hide_show_table() {
     <div id="prev_result"></div>
     <button class="esri-button" id="clean_btn">Reset the Investment</button>
 </div>
-
+  
 <div id="referenceDiv" class="tabcontent">
+  <div>   HOMEdash (which stands for Heartbeat of Mother Earth dashboard) is a cross-platform application that displays real-time data streams about sustainable development on a 3D globe with which users can interact . Interactions available to HOMEdash users include the ability to turn data layers on and off, enable time sliders to see change over years, and identify patterns of environmental issues. The application should highlight the UN 2030 Sustainable Development Goals (SDGs) and provide access to widgets which display human progress toward sustainability goals.<br> <br> This prototype is an ArcGIS API-powered dashboard that currently displays carbon stock data for over 150+ countries by integrating geographic information systems.<br><br> The main page of the HOMEdash front-end GUI is composed of 4 modules: a 3D global scene viewer, a feature data table, an analytic data chart, and a set of interactive functions. Data columns are displayed as colored bars on the 3D scene with various heights. Clicking on the data bars invoke a pop-up page where users can find extra information and a hyperlink to the story-telling external webpage. <br><br> The Feature Data Chart includes all the data fields related to the feature layer. Users can choose which file to be shown on the chart and rank the rows according to a specific column.<br><br> The default investment function in HOMEdash calculates how much a country's total carbon stock can increase as well as its global rank based on money investment. Users can click on the global scene to choose which country to invest in, slide the slider to change investment amount, and check the function's text output. </div>
+
+  <div><br> Variable fields: <br> (1)  Country name <br>
+(2) above ground biomass of carbon (AGBC) per hectare (in tonnes)<br>
+(3) below ground biomass of carbon (BGBC) per hectare (in tonnes) <br>
+(4) soil carbon (SC) per hectare (in tonnes)<br>
+(5) total carbon stock per hectare (in tonnes)<br>
+(6) mangrove forest coverage (in hectare)<br>
+(7) total carbon stock biomass (in tonnes)<br>
+(8) total carbon stock rank<br>
+(9) latest year mangrove forest coverage is recorded<br>
+(10)   link to information about the country’s preservation of mangrove forests<br>
+<br> </div>
+
+  <div><br>References: <div>
   <div> 1) Alongi, Daniel M. 2020. "Global Significance of Mangrove Blue Carbon in Climate Change Mitigation" Sci 2, no. 3: 67. https://doi.org/10.3390/sci2030067</div>
-  <div> 2) FAO, 2003. Status and trends in mangrove area extent worldwide. By Wilkie, M.L. and Fortuna, S. Forest Resources Assessment Working Paper No. 63. Forest Resources Division. FAO, Rome. https://www.fao.org/3/j1533e/j1533e02.htm</div>
-  <div> 3) https://doi.org/10.1890/15-1077</div>
+  <div> 2) FAO, 2003. Status and trends in mangrove area extent worldwide. By Wilkie, M.L. and Fortuna, S. Forest Resources Assessment Working Paper No. 63. Forest Resources Division. FAO, Rome. https://www.fao.org/3/j1533e/j1533e02.htm <br> </div>
+  <div> 3) https://doi.org/10.1890/15-1077 <br> </div>
 </div>
 
 </div>
@@ -510,3 +525,4 @@ function hide_show_table() {
     </div>
 </body>
 </html>
+
