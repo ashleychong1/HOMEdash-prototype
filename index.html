@@ -1,0 +1,512 @@
+<meta
+name="viewport"
+content="initial-scale=1, maximum-scale=1,user-scalable=no"
+/>
+<title>
+ArcGIS API for JavaScript 4.22
+</title>
+
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+<link
+rel="stylesheet"
+href="https://js.arcgis.com/4.22/esri/themes/light/main.css"
+/>
+<script src="https://js.arcgis.com/4.22/"></script>
+
+<style>
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#viewDiv {
+  height: 50%;
+  width: 100%;
+}
+
+#zoom {
+  margin-bottom: 5px;
+}
+
+#actions {
+  padding: 5px;
+}
+
+.container {
+  height: 50%;
+  width: 100%;
+}
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+  }
+
+  .tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+  }
+
+
+  .tab button:hover {
+    background-color: #ddd;
+  }
+
+  .tab button.active {
+    background-color: #ccc;
+  }
+
+  #sliderDiv {
+    height: 50px;
+    width: 300px;
+  }
+
+
+
+</style>
+<script>
+require([
+  "esri/WebScene",
+  "esri/views/SceneView",
+  "esri/core/watchUtils",
+  "esri/layers/FeatureLayer",
+  "esri/widgets/FeatureTable",
+  "esri/widgets/Search",
+  "esri/widgets/BasemapGallery",
+  "esri/widgets/Slider"
+], (WebScene, SceneView, watchUtils, FeatureLayer, FeatureTable, Search, BasemapGallery, Slider) => {
+  //AGBC,BGBC,SC,Total Carbon_stock per ha: Alongi, Daniel M. 2020. "Global Significance of Mangrove Blue Carbon in Climate Change Mitigation" Sci 2, no. 3: 67. https://doi.org/10.3390/sci2030067
+  //Mangrove coverage: FAO, 2003. Status and trends in mangrove area extent worldwide. By Wilkie, M.L. and Fortuna, S. Forest Resources Assessment Working Paper No. 63. Forest Resources Division. FAO, Rome. https://www.fao.org/3/j1533e/j1533e02.htm
+  //Cost of mangrove restoration:  https://doi.org/10.1890/15-1077
+
+
+  const features = [];
+  const webmap = new WebScene({
+    portalItem: {
+      id: "63f4d793133049c9a35372d0ddf99ca8"
+    }
+  });
+
+  const view = new SceneView({
+    container: "viewDiv",
+    map: webmap,
+    popup: {
+      autoOpenEnabled: true
+    }
+  });
+
+  view.when(() => {
+
+
+    const featureLayer = new FeatureLayer(
+      {url:
+        "https://services.arcgis.com/kbDdtKcFi2adamXa/arcgis/rest/services/Mangrove_carbon_stories___Sheet1/FeatureServer/0",
+        outFields: ["*"]
+      });
+    // Get data from the layer
+    let Mangrove_feature;
+    var Mangrove_investment = {};
+    featureLayer.queryFeatures({
+        start: 0,
+        num: 150,
+        returnGeometry: false,
+        outFields: ["Country_or_Region","AGBC","BGBC","SC","Total_Carbon_Stock_per_ha","Total_Carbon_Stock","Total_Carbon_Rank","ObjectID"]
+    }).then(function(featureSet) {
+      var i;
+        featureSet.features.sort(function(a, b) {
+            return a.attributes["Total_Carbon_Rank"] - b.attributes["Total_Carbon_Rank"]; //ascending order
+        });
+        Mangrove_feature = featureSet.features;
+      console.log('length')
+      console.log(featureSet.features.length);
+      for (i = 0;i< Mangrove_feature.length;i++) {
+        var obj_id = Mangrove_feature[i].attributes.ObjectId;
+        Mangrove_investment[obj_id.toString()] = 0;
+      }
+        //console.log(Mangrove_feature);
+        console.log(featureSet.features.length);
+    });
+
+    // Create the feature table
+    const featureTable = new FeatureTable({
+      view: view,
+      layer: featureLayer,
+
+      container: document.getElementById("tableDiv")
+    });
+
+    //console.log(featureTable);
+    var a = featureTable.columns.clone();
+    const feature_name_list = ["Total_Carbon_Stock", "Covering_Area", "Total_Carbon_Stock_per_ha"];
+    for(let i = 0; i<feature_name_list.length; i++){
+      //a = featureTable.findColumn("Total_Carbon_Stock");
+      //console.log(a);
+    }
+
+    const searchWidget = new Search({
+      view: view,
+      sources: [featureLayer]
+    });
+
+    let basemapGallery = new BasemapGallery({
+      view: view,
+      container: document.getElementById("gallery_holder")
+    });
+
+    let slider = new Slider({
+        container: document.getElementById("sliderDiv"),
+        min: 0,
+        max: 100000,
+        values: [0],
+        precision:0,
+        labelInputsEnabled:true,
+        snapOnClickEnabled: true,
+        visibleElements: {
+          labels: true,
+          rangeLabels: true
+        }
+      });
+
+
+
+    // Add buttons to the mapView
+    view.ui.add(document.getElementById("s_table"), "bottom-right");
+    view.ui.add(searchWidget, {
+      position: "top-right",
+      index: 2
+    });
+    view.ui.add(document.getElementById("actions"), "top-right");
+    view.ui.add(document.getElementById("gallery_btn"), "top-right");
+    view.ui.add(basemapGallery, {
+      position: "top-right"
+    });
+
+    // Default Tab
+    document.getElementById("defaultOpen").click();
+    var x = document.getElementById("gallery_holder");
+    x.style.display = "none";
+    this.last_select = null;
+    this.showing_chart = "Total_Carbon_Stock";
+    this.chart_features = null;
+
+    featureLayer.watch("loaded", () => {
+      watchUtils.whenFalse(view, "updating", () => {
+        // Get the new extent of view/map whenever map is updated.
+        if (view.extent) {
+          // Filter out and show only the visible features in the feature table
+          //featureTable.filterGeometry = view.extent;
+          //if (typeof this.last_select !== 'undefined'){
+            //console.log(this.last_select);
+            //featureTable.selectRows(this.last_select);
+          //}
+          ///console.log("now showing:");
+          //console.log(view.extent);
+
+          //Filter for the chart
+          //Testing
+          let query = featureLayer.createQuery();
+          //query.geometry = view.extent;  // the point location of the pointer
+          query.returnGeometry = false;
+          query.outFields = ["Country_or_Region","AGBC","BGBC","SC","Total_Carbon_Stock_per_ha","Total_Carbon_Stock","Total_Carbon_Rank","ObjectID"];
+          featureLayer.queryFeatures(query)
+          .then(function(response){
+            response.features.sort(function(a, b) {
+                return a.attributes[this.showing_chart] - b.attributes[showing_chart]; //ascending order
+            });
+            //console.log("now showing:");
+            //console.log(response.features);
+            this.chart_features = response.features;
+          });
+          //Testing
+
+          plot_feature_chart();
+        }
+      });
+    });
+
+
+    // Listen for the click on the view and select any associated row in the table
+    let Mangrove_selected;
+    let id_selected = -1;
+    let id_obj=-1;
+    view.on("immediate-click", (event) => {
+      view.hitTest(event).then((response) => {
+        console.log(response);
+        // Select the rows of the clicked feature
+        if (typeof response.results[0] !== 'undefined'){
+          featureTable.selectRows(response.results[0].graphic);
+          this.last_select = response.results[0].graphic;
+          id_obj = response.results[0].graphic.attributes.ObjectId;
+          //console.log(id_obj);
+          Mangrove_selected = Mangrove_feature.find(element => element.attributes.ObjectId == id_obj);
+
+
+          id_selected = Mangrove_selected.attributes.Total_Carbon_Rank-1;
+          //console.log("find");
+
+          //console.log(Mangrove_selected.attributes);
+          //console.log(Mangrove_feature[id_selected].attributes);
+        }
+      });
+    });
+
+    function investing(){
+      if (id_selected<0) {
+        document.getElementById("invest_result").innerHTML = "Please select a country";
+        return;
+      }
+        let name = Mangrove_feature[id_selected].attributes.Country_or_Region;
+        let carbon_new = Mangrove_feature[id_selected].attributes.Total_Carbon_Stock;
+        let increase_rate = Mangrove_feature[id_selected].attributes.Total_Carbon_Stock_per_ha;
+        let rank_new = id_selected;
+        let string;
+        Mangrove_investment[id_obj]+= slider.values*1;
+        if (increase_rate == 0) {
+          increase_rate = 100000;//667.4372;
+        }
+        carbon_new = carbon_new+slider.values/2508*increase_rate;
+       Mangrove_feature[rank_new].attributes.Total_Carbon_Stock = carbon_new;
+        //console.log(carbon_new);
+        while(rank_new>0 && carbon_new>Mangrove_feature[rank_new-1].attributes.Total_Carbon_Stock) {
+          Mangrove_feature[rank_new-1].attributes.Total_Carbon_Rank++;
+          rank_new--;
+        }
+      Mangrove_feature[id_selected].attributes.Total_Carbon_Rank = rank_new+1;
+      id_selected = rank_new
+      Mangrove_feature = Mangrove_feature.sort(function(a, b) {
+            return a.attributes["Total_Carbon_Rank"] - b.attributes["Total_Carbon_Rank"]; //ascending order
+        });
+
+        //console.log(rank_new);
+        string = //"After investing "+slider.values+" dollars, \n"+
+          name+ " has received a total of "+ Mangrove_investment[id_obj] + " dollars.\n"+"It can consume a carbon stock of "+carbon_new.toFixed(0)+" tonnes. \nIts rank in the world will become "+ (rank_new+1);
+        //console.log(string);
+        document.getElementById("invest_result").innerHTML = string;
+        return;
+    }
+
+    function pinning(){
+      var string = document.getElementById("invest_result").innerHTML;
+      if (id_selected<0) {
+        return;
+      }
+      document.getElementById("prev_result").innerHTML = string;
+      document.getElementById("invest_result").innerHTML = "";
+      return;
+    }
+
+    function cleaning() {
+      if (id_selected<0) {
+        return;
+      }
+      document.getElementById("prev_result").innerHTML = "";
+      document.getElementById("invest_result").innerHTML = "";
+      featureLayer.queryFeatures({
+        start: 0,
+        num: 150,
+        returnGeometry: false,
+        outFields: ["Country_or_Region","AGBC","BGBC","SC","Total_Carbon_Stock_per_ha","Total_Carbon_Stock","Total_Carbon_Rank","ObjectID"]
+    }).then(function(featureSet) {
+      var i;
+        featureSet.features.sort(function(a, b) {
+            return a.attributes["Total_Carbon_Rank"] - b.attributes["Total_Carbon_Rank"]; //ascending order
+        });
+        Mangrove_feature = featureSet.features;
+      for (i = 0;i< Mangrove_feature.length;i++) {
+        var obj_id = Mangrove_feature[i].attributes.ObjectId;
+        Mangrove_investment[obj_id.toString()] = 0;
+      }
+        Mangrove_selected = Mangrove_feature.find(element => element.attributes.ObjectId == id_obj);
+
+
+          id_selected = Mangrove_selected.attributes.Total_Carbon_Rank-1;
+      console.log(id_selected)
+        return;
+      });
+        //console.log(Mangrove_feature);
+
+    }
+
+    const fullExtentBtn = document.getElementById("fullextent");
+    const hide_showBtn = document.getElementById("hide_show");
+    const gallery_hide_showBtn = document.getElementById("gallery_btn");
+    const invest_country_btn = document.getElementById("invest_btn");
+    const pin_country_btn = document.getElementById("pin_btn");
+    const clean_country_btn = document.getElementById("clean_btn");
+
+    // Wire up button click event listeners
+    fullExtentBtn.addEventListener("click", fullExtent);
+    hide_showBtn.addEventListener("click", hide_show_table);
+    gallery_hide_showBtn.addEventListener("click", hide_show_gallery);
+    invest_country_btn.addEventListener("click", investing);
+    pin_country_btn.addEventListener("click", pinning);
+    clean_country_btn.addEventListener("click", cleaning);
+
+    // Fires when "Full extent" button is clicked
+    function fullExtent() {
+      // Zooms to the full extent of the feature layer
+      view.goTo(featureLayer.fullExtent).catch((error) => {
+        if (error.name != "AbortError") {
+          console.error(error);
+        }
+      });
+
+    }
+  });
+});
+
+function hide_show_table() {
+    var x = document.getElementById("content_holder");
+    var map = document.getElementById("viewDiv");
+    if (x.style.display === "none") {
+      map.style.height = "50%"
+      x.style.display = "block";
+    } else {
+      map.style.height = "100%"
+      x.style.display = "none";
+    }
+  }
+
+  function hide_show_gallery() {
+    var x = document.getElementById("gallery_holder");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+
+  function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+
+  function plot_feature_chart(){
+    this.showing_chart = document.getElementById("f_dis").value;
+    if (this.chart_features != null){
+        this.chart_features.sort(function(a, b) {
+            if (this.showing_chart == "Total_Carbon_Rank" ){
+            return b.attributes[this.showing_chart] - a.attributes[showing_chart];
+          } else {
+            return a.attributes[this.showing_chart] - b.attributes[showing_chart]; //ascending order
+          }
+        });
+        var chart_entries = [];
+        for(let i = 0; i < this.chart_features.length; i++){
+            chart_entries.push({y:(chart_features[i]).attributes[this.showing_chart], label:(chart_features[i]).attributes["Country_or_Region"]});
+        }
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+
+            title:{
+                text:this.showing_chart,
+              fontSize: 30
+            },
+            axisX:{
+                interval: 1,
+              labelFontSize: 10
+            },
+            axisY2:{
+                interlacedColor: "rgba(1,77,101,.2)",
+                gridColor: "rgba(1,77,101,.1)",
+              labelFontSize: 10
+            },
+            data: [{
+                type: "bar",
+                name: "country",
+                axisYType: "secondary",
+                color: "#014D65",
+                dataPoints: chart_entries
+            }],
+          height:1000
+        });
+        //console.log("plotting");
+        //console.log(chart_entries);
+        chart.render();
+    }
+
+}
+
+
+
+
+</script>
+</head>
+
+<body>
+<div id="viewDiv"></div>
+<div id="gallery_holder"></div>
+
+<div class="container" id="content_holder">
+<!-- Tab links -->
+<div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'tableDiv')" id="defaultOpen">Table</button>
+    <button class="tablinks" onclick="openTab(event, 'chartDiv')">Chart</button>
+    <button class="tablinks" onclick="openTab(event, 'functionDiv')">Function</button>
+    <button class="tablinks" onclick="openTab(event, 'referenceDiv')">References</button>
+  </div>
+<!-- Tab links -->
+<div id="tableDiv" class="tabcontent"></div>
+
+<div id="chartDiv" class="tabcontent">
+    <h3>Select a Field to Plot:</h3>
+    <select name="field_dis" id="f_dis" onchange="plot_feature_chart()">
+        <option value="Total_Carbon_Stock">Total Carbon Stock</option>
+        <option value="Total_Carbon_Rank">Total Carbon Rank</option>
+        <option value="Total_Carbon_Stock_per_ha">Total Carbon Stock per ha</option>
+      </select>
+      <div id="chartContainer" style="height: 1000px; width: 100%;"></div>
+</div>
+
+<div id="functionDiv" class="tabcontent">
+    <h3>Select a Country to Invest:</h3>
+    <div id="sliderDiv"></div>
+    <button class="esri-button" id="invest_btn">Invest in the Country</button><button class="esri-button" id="pin_btn">Pin the Country</button>
+    <div id="invest_result"></div>
+    <div id="prev_result"></div>
+    <button class="esri-button" id="clean_btn">Reset the Investment</button>
+</div>
+
+<div id="referenceDiv" class="tabcontent">
+  <div> 1) Alongi, Daniel M. 2020. "Global Significance of Mangrove Blue Carbon in Climate Change Mitigation" Sci 2, no. 3: 67. https://doi.org/10.3390/sci2030067</div>
+  <div> 2) FAO, 2003. Status and trends in mangrove area extent worldwide. By Wilkie, M.L. and Fortuna, S. Forest Resources Assessment Working Paper No. 63. Forest Resources Division. FAO, Rome. https://www.fao.org/3/j1533e/j1533e02.htm</div>
+  <div> 3) https://doi.org/10.1890/15-1077</div>
+</div>
+
+</div>
+
+<div id="actions" class="esri-widget">
+<button class="esri-button" id="fullextent">Full extent</button>
+</div>
+<div id="s_table" class="esri-widget">
+    <button class="esri-button" id="hide_show">Hide / Show the Table</button>
+    </div>
+<div id="sliderDiv"></div>
+<div id="gallery_btn" class="esri-widget">
+    <button class="esri-button" id="gallery_hide_show">Hide / Show the Basemap Gallery</button>
+    </div>
+</body>
+</html>
