@@ -126,6 +126,12 @@
       } 
     });
 
+    var img = document.createElement("img");
+    img.src = "HOMEdash-prototype/assets/favicon.png";
+
+    var img_div = document.getElementById("title_image");
+    img_div.appendChild(img);
+
     view.when(() => {
       
       
@@ -512,6 +518,7 @@
   
 <div id="referenceDiv" class="tabcontent">
   <div id="homedashTitle">HOMEdash</div>
+  <div id = "title_image"></div>
   <br><div>HOMEdash (which stands for Heartbeat of Mother Earth dashboard) is a cross-platform application that displays real-time data streams about sustainable development on a 3D globe with which users can interact . Interactions available to HOMEdash users include the ability to turn data layers on and off, enable time sliders to see change over years, and identify patterns of environmental issues. The application should highlight the UN 2030 Sustainable Development Goals (SDGs) and provide access to widgets which display human progress toward sustainability goals.<br> <br> This prototype is an ArcGIS API-powered dashboard that currently displays carbon stock data for over 150+ countries by integrating geographic information systems.<br><br> The main page of the HOMEdash front-end GUI is composed of 4 modules: a 3D global scene viewer, a feature data table, an analytic data chart, and a set of interactive functions. Data columns are displayed as colored bars on the 3D scene with various heights. Clicking on the data bars invoke a pop-up page where users can find extra information and a hyperlink to the story-telling external webpage. <br><br> The Feature Data Chart includes all the data fields related to the feature layer. Users can choose which file to be shown on the chart and rank the rows according to a specific column.<br><br> The default investment function in HOMEdash calculates how much a country's total carbon stock can increase as well as its global rank based on money investment. Users can click on the global scene to choose which country to invest in, slide the slider to change investment amount, and check the function's text output. </div>
   <br><div id="variableFieldsTitle">Variable fields:</div>
   <ol>
@@ -548,4 +555,3 @@
     </div>
 </body>
 </html>
-
