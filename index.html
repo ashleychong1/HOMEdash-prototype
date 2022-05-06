@@ -49,6 +49,7 @@
   #homedashTitle {
     font-size: 30px;
     font-weight: bold;
+    text-align: center;
   }
 
   #introParagraph {
@@ -56,7 +57,14 @@
   }
   
   #titleLogo {
-    height: 40px;
+    height: 150px;
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #teamDiv {
+    text-align: center;
   }
 
   #descPara {
@@ -529,10 +537,14 @@
 </div>
   
 <div id="referenceDiv" class="tabcontent">
-  <br><div id="homedashTitle">HOMEdash    <img id="titleLogo" src="assets/favicon.png"></div>
-  <div></div>
+  <br><div id="homedashTitle">HOMEdash</div>
+  <div style="text-align: center;"> <img id="titleLogo" src="assets/favicon.png"> </div>
+  <div id = "teamDiv"> Ashley Chong akchong@bu.edu 
+                      <br>Zhiyuan Liu lzy2022@bu.edu
+                      <br>Zhangchi Lu zhchlu@bu.edu
+                      <br>Haocun Kelly Wang haocunw@bu.edu</div>
   <br><div id="introParagraph">HOMEdash (which stands for Heartbeat of Mother Earth dashboard) is a cross-platform application that displays real-time data streams about sustainable development on a 3D globe with which users can interact . Interactions available to HOMEdash users include the ability to turn data layers on and off, enable time sliders to see change over years, and identify patterns of environmental issues. The application should highlight the UN 2030 Sustainable Development Goals (SDGs) and provide access to widgets which display human progress toward sustainability goals.</div>
-    <br> <br> <div>This prototype is an ArcGIS API-powered dashboard that currently displays carbon stock data for over 150+ countries by integrating geographic information systems.<br><br> The main page of the HOMEdash front-end GUI is composed of 4 modules: a 3D global scene viewer, a feature data table, an analytic data chart, and a set of interactive functions. </div>
+    <br> <br> <div>This prototype is an ArcGIS API-powered dashboard that currently displays carbon stock data for over 150+ countries by integrating geographic information systems. The main page of the HOMEdash front-end GUI is composed of 4 modules: a 3D global scene viewer, a feature data table, an analytic data chart, and a set of interactive functions. </div>
   <br><div id ="instructionTitle"> Instructions: </div>
   <ol>
     <li>3D global scene viewer
