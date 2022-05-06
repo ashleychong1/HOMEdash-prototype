@@ -50,9 +50,17 @@
     font-size: 30px;
     font-weight: bold;
   }
+
+  #introParagraph {
+    font-weight: bold;
+  }
   
-  #title_image {
-    size: 10px;
+  #titleLogo {
+    height: 40px;
+  }
+
+  #descPara {
+    font-style: italic;
   }
 
   #instructionTitle {
@@ -135,11 +143,6 @@
       } 
     });
 
-    var img = document.createElement("img");
-    img.src = "/assets/favicon.png";
-
-    var img_div = document.getElementById("title_image");
-    img_div.appendChild(img);
 
     view.when(() => {
       
@@ -526,40 +529,49 @@
 </div>
   
 <div id="referenceDiv" class="tabcontent">
-  <div id="homedashTitle">HOMEdash</div>
-  <div id = "title_image"></div>
-  <br><div>HOMEdash (which stands for Heartbeat of Mother Earth dashboard) is a cross-platform application that displays real-time data streams about sustainable development on a 3D globe with which users can interact . Interactions available to HOMEdash users include the ability to turn data layers on and off, enable time sliders to see change over years, and identify patterns of environmental issues. The application should highlight the UN 2030 Sustainable Development Goals (SDGs) and provide access to widgets which display human progress toward sustainability goals.<br> <br> This prototype is an ArcGIS API-powered dashboard that currently displays carbon stock data for over 150+ countries by integrating geographic information systems.<br><br> The main page of the HOMEdash front-end GUI is composed of 4 modules: a 3D global scene viewer, a feature data table, an analytic data chart, and a set of interactive functions. </div>
+  <br><div id="homedashTitle">HOMEdash    <img id="titleLogo" src="assets/favicon.png"></div>
+  <div></div>
+  <br><div id="introParagraph">HOMEdash (which stands for Heartbeat of Mother Earth dashboard) is a cross-platform application that displays real-time data streams about sustainable development on a 3D globe with which users can interact . Interactions available to HOMEdash users include the ability to turn data layers on and off, enable time sliders to see change over years, and identify patterns of environmental issues. The application should highlight the UN 2030 Sustainable Development Goals (SDGs) and provide access to widgets which display human progress toward sustainability goals.</div>
+    <br> <br> <div>This prototype is an ArcGIS API-powered dashboard that currently displays carbon stock data for over 150+ countries by integrating geographic information systems.<br><br> The main page of the HOMEdash front-end GUI is composed of 4 modules: a 3D global scene viewer, a feature data table, an analytic data chart, and a set of interactive functions. </div>
   <br><div id ="instructionTitle"> Instructions: </div>
   <ol>
-    <li>3D global scene viewer:
-    <div>The 3D Global Scene Viewer provides an intuitive way for users to interact with the data columns on a 3D map. Every data entry is represented by a colored bar on the map, and the height of the bar is related to the actual value of the entry. The following functions are provided in the module:</div>
-      <div>1) Zoom and rotation control</div>
-      <div>2) Country / region searching</div>
-      <div>3) Camera view reset</div>
-      <div>4) Basemap gallery</div>
-      <div>5) Pop-up windows</div>
-      <div>6) Hide/show data module</div>
+    <li>3D global scene viewer
+    <div id="descPara">The 3D Global Scene Viewer provides an intuitive way for users to interact with the data columns on a 3D map. Every data entry is represented by a colored bar on the map, and the height of the bar is related to the actual value of the entry. The following functions are provided in the module:</div>
+      <ol>  
+        <li>Zoom and rotation control</li>
+        <li>Country / region searching</li>
+        <li>Camera view reset</li>
+        <li>Basemap gallery</li>
+        <li>Pop-up windows</li>
+        <li>Hide/show data module</li>
+      </ol>
     </li>
       <br>
-    <li>feature data table:
-    <div>The Feature Data table includes all the data fields related to the feature layer. Users can rank the rows according to a specific column. To view data from a particular country, users can search using the country’s name in the 3D Global Scene Viewer, and the area will automatically zoom to the correct region. The following functions are provided in the module:</div>
-      <div>1) Data table showing the selected fields</div>
-      <div>2) Field selection for the feature table</div>
+    <li>Feature data table
+    <div id="descPara">The Feature Data table includes all the data fields related to the feature layer. Users can rank the rows according to a specific column. To view data from a particular country, users can search using the country’s name in the 3D Global Scene Viewer, and the area will automatically zoom to the correct region. The following functions are provided in the module:</div>
+      <ol>  
+        <li>Data table showing the selected fields</li>
+        <li>Field selection for the feature table</li>
+      </ol>
     </li>
       <br>
-    <li>Analytic Chart
-      <div>The Feature Data Chart includes all the data fields related to the feature layer. Users can choose which file to be shown on the chart. The following functions are provided in the module:</div>
-      <div>1) Analytic chart</div>
-      <div>2) Field selection for analytic chart</div>
+    <li>Analytics Chart
+      <div id="descPara">The Feature Data Chart includes all the data fields related to the feature layer. Users can choose which file to be shown on the chart. The following functions are provided in the module:</div>
+      <ol>
+        <li>Analytic chart</li>
+        <li>Field selection for analytic chart</li>
+      </ol>
     </li>
       <br>
     <li>Configurable & Interactive investment function
-    <div> The default investment function in HOMEdash prototype calculates how much a country's total carbon stock can increase as well as its global rank based on money investment. The following functions are provided in the module:</div>
-    <div>1) Click on the global scene to choose which country to invest in</div> 
-    <div>2) Check the investment result by clicking "invest" button.</div>
-    <div>3) Press the pin button to pin the output of currently selected country, and then compare its total carbon stock and rank with the newly selected country.</div>
-    <div>4) Reset the entire investment by clicking the reset button.</div>
-    </li>
+    <div id="descPara"> The default investment function in HOMEdash prototype calculates how much a country's total carbon stock can increase as well as its global rank based on money investment. The following functions are provided in the module:</div>
+      <ol>
+        <li>Click on the global scene to choose which country to invest in</li> 
+        <li>Check the investment result by clicking "invest" button.</li>
+        <li>Press the pin button to pin the output of currently selected country, and then compare its total carbon stock and rank with the newly selected country.</li>
+        <li>Reset the entire investment by clicking the reset button.</li>
+      </ol>
+  </li>
   </ol>
   <br><div id="variableFieldsTitle">Variable fields:</div>
   <ol>
